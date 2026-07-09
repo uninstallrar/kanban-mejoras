@@ -160,7 +160,7 @@ $$;
 
 revoke execute on function public.handle_new_user() from public;
 revoke execute on function public.handle_new_user() from authenticated;
-grant execute on function public.handle_new_user() to service_role;
+grant execute on function public.handle_new_user() to supabase_auth_admin, service_role;
 
 drop trigger if exists on_auth_user_created on auth.users;
 create trigger on_auth_user_created
@@ -205,8 +205,7 @@ end;
 $$;
 
 revoke execute on function public.log_solicitud_change() from public;
-revoke execute on function public.log_solicitud_change() from authenticated;
-grant execute on function public.log_solicitud_change() to service_role;
+grant execute on function public.log_solicitud_change() to authenticated, service_role;
 
 drop trigger if exists on_solicitud_updated on public.solicitudes;
 create trigger on_solicitud_updated

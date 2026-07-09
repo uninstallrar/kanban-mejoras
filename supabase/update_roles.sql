@@ -62,7 +62,7 @@ $$;
 
 revoke execute on function public.handle_new_user() from public;
 revoke execute on function public.handle_new_user() from authenticated;
-grant execute on function public.handle_new_user() to service_role;
+grant execute on function public.handle_new_user() to supabase_auth_admin, service_role;
 
 -- 7. Promover inmediatamente al usuario contacteconmariadelcarmen@gmail.com si ya está registrado
 update public.profiles 
