@@ -21,7 +21,7 @@ create or replace function public.is_admin()
 returns boolean
 language sql
 security definer
-set search_path = public
+set search_path = public, pg_temp
 as $$
   select exists (
     select 1 from public.profiles
@@ -29,12 +29,15 @@ as $$
   );
 $$;
 
+revoke execute on function public.is_admin() from public;
+grant execute on function public.is_admin() to authenticated, service_role;
+
 -- 6. Actualizar el trigger de creación de usuarios para asignar superadmin/empleado automáticamente
 create or replace function public.handle_new_user()
 returns trigger
 language plpgsql
 security definer
-set search_path = public
+set search_path = public, pg_temp
 as $$
 begin
   insert into public.profiles (id, nombre, email, telefono, rol)
@@ -56,6 +59,10 @@ begin
   return new;
 end;
 $$;
+
+revoke execute on function public.handle_new_user() from public;
+revoke execute on function public.handle_new_user() from authenticated;
+grant execute on function public.handle_new_user() to service_role;
 
 -- 7. Promover inmediatamente al usuario contacteconmariadelcarmen@gmail.com si ya está registrado
 update public.profiles 

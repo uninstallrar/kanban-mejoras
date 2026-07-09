@@ -116,13 +116,16 @@ create or replace function public.is_admin()
 returns boolean
 language sql
 security definer
-set search_path = public
+set search_path = public, pg_temp
 as $$
   select exists (
     select 1 from public.profiles
     where id = auth.uid() and rol in ('superadmin', 'admin', 'supervisor', 'federado')
   );
 $$;
+
+revoke execute on function public.is_admin() from public;
+grant execute on function public.is_admin() to authenticated, service_role;
 
 -- ----------------------------------------------------------------------------
 -- 4.2 Crear el profile automáticamente al registrarse un usuario nuevo.
@@ -132,7 +135,7 @@ create or replace function public.handle_new_user()
 returns trigger
 language plpgsql
 security definer
-set search_path = public
+set search_path = public, pg_temp
 as $$
 begin
   insert into public.profiles (id, nombre, email, telefono, rol)
@@ -155,6 +158,10 @@ begin
 end;
 $$;
 
+revoke execute on function public.handle_new_user() from public;
+revoke execute on function public.handle_new_user() from authenticated;
+grant execute on function public.handle_new_user() to service_role;
+
 drop trigger if exists on_auth_user_created on auth.users;
 create trigger on_auth_user_created
   after insert on auth.users
@@ -169,7 +176,7 @@ create or replace function public.log_solicitud_change()
 returns trigger
 language plpgsql
 security definer
-set search_path = public
+set search_path = public, pg_temp
 as $$
 begin
   new.updated_at := now();
@@ -196,6 +203,10 @@ begin
   return new;
 end;
 $$;
+
+revoke execute on function public.log_solicitud_change() from public;
+revoke execute on function public.log_solicitud_change() from authenticated;
+grant execute on function public.log_solicitud_change() to service_role;
 
 drop trigger if exists on_solicitud_updated on public.solicitudes;
 create trigger on_solicitud_updated
@@ -233,7 +244,11 @@ create policy "profiles_update_self_or_admin"
 drop policy if exists "solicitudes_select_all" on public.solicitudes;
 create policy "solicitudes_select_all"
   on public.solicitudes for select
-  to authenticated using (true);
+  to authenticated
+  using (
+    creado_por = auth.uid() 
+    or public.is_admin()
+  );
 
 -- Creación: cualquier usuario puede crear, pero sólo a su propio nombre.
 drop policy if exists "solicitudes_insert_own" on public.solicitudes;
