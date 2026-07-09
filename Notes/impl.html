@@ -1,0 +1,46 @@
+# Plan de Implementación - Configuración de Roles y Permisos Automáticos Este
+plan detalla los cambios para configurar el acceso automático del usuario
+principal (`contacteconmariadelcarmen@gmail.com`) con todos los privilegios
+administrativos, y definir los nuevos roles del sistema. ## User Review Required
+> [!IMPORTANT] > Para el correo `contacteconmariadelcarmen@gmail.com` se le
+otorgará el rol de `superadmin` en el sistema. En el frontend, este rol (junto
+con `admin`, `supervisor` y `federado`) será validado bajo la variable
+`isAdmin`, lo que habilitará todas las capacidades de administración en la
+interfaz (como mover tarjetas en el Kanban, ver el veredicto de viabilidad,
+etc.). > > Para el resto de los usuarios, se habilitarán los roles `'empleado'`,
+`'colaborador'`, `'liquidador'`, `'desarrollador'` y `'consulta'`. Ninguno de
+estos tendrá permisos administrativos. ## Proposed Changes ### Componente: Base
+de Datos (Supabase SQL) Proponemos un conjunto de comandos SQL para actualizar
+el esquema de la base de datos, las restricciones de verificación (check
+constraints), la función de verificación de administrador, el trigger de nuevos
+usuarios y actualizar el perfil del usuario principal si ya existe. #### [NEW]
+[update_roles.sql](file:///c:/Users/mariago/Desktop/kanban-mejoras/supabase/update_roles.sql)
+Crearemos un script SQL que podrás ejecutar en el **SQL Editor** de tu Dashboard
+de Supabase. #### [MODIFY]
+[schema.sql](file:///c:/Users/mariago/Desktop/kanban-mejoras/supabase/schema.sql)
+Actualizaremos el archivo de esquema local del proyecto para reflejar la
+estructura final con la nueva lista de roles y la asignación automática. --- ###
+Componente: Frontend (React & TypeScript) #### [MODIFY]
+[index.ts](file:///c:/Users/mariago/Desktop/kanban-mejoras/src/types/index.ts) -
+Actualizar el tipo `Rol` para soportar `'superadmin'`, `'admin'`,
+`'supervisor'`, `'federado'`, `'empleado'`, `'colaborador'`, `'liquidador'`,
+`'desarrollador'` y `'consulta'`. - Dejar `'employee'` como fallback para evitar
+incompatibilidades con datos antiguos de prueba. #### [MODIFY]
+[AuthContext.tsx](file:///c:/Users/mariago/Desktop/kanban-mejoras/src/context/AuthContext.tsx)
+- Actualizar la variable `isAdmin` para verificar si el rol está dentro de los
+roles administrativos: `['superadmin', 'admin', 'supervisor', 'federado']`. -
+Añadir un interceptor en `loadProfile()` y una validación de fallback sobre el
+email: si el usuario inicia sesión con `contacteconmariadelcarmen@gmail.com`, se
+le asignará automáticamente el rol de `superadmin` e `isAdmin` en memoria,
+garantizando acceso instantáneo en el entorno de desarrollo local incluso antes
+de actualizar la base de datos de Supabase. #### [MODIFY]
+[Header.tsx](file:///c:/Users/mariago/Desktop/kanban-mejoras/src/components/layout/Header.tsx)
+- Modificar el renderizado del rol del usuario para mostrar una
+traducción/etiqueta amigable en español de los nuevos roles (ej. `'superadmin'`
+-> `Superadmin`, `'colaborador'` -> `Colaborador`, etc.). --- ## Verification
+Plan ### Automated Tests - Ejecutaremos `npm run build` para asegurar que no se
+introducen errores de compilación en TypeScript. ### Manual Verification -
+Comprobaremos localmente simulando el inicio de sesión con el correo configurado
+para validar que la interfaz activa los controles de administrador. -
+Verificaremos el correcto renderizado de los nuevos nombres de roles en el
+Header.

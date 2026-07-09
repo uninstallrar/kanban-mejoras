@@ -1,0 +1,28 @@
+
+Cómo cree el trigger para el auth de usuarios:
+
+
+-- 1.Funcion que va a ejecutar el trigger: 
+create or replace function public.handle_new_user()
+returns trigger as $$
+begin
+  insert into public.profiles (id, full_name, username, rol)
+  values (
+    new.id,
+    coalesce(new.raw_user_meta_data->>'full_name', ''), -- Si envías el nombre desde el frontend
+    coalesce(new.raw_user_meta_data->>'username', ''),  -- Si envías el username desde el frontend
+    'empleado'                                          -- Rol por defecto
+  );
+  return new;
+end;
+$$ language plpgsql security definer;
+
+-- 2. Creamos el trigger que se dispara CADA VEZ que se crea una fila en auth.users
+create or replace trigger on_auth_user_created
+  after insert on auth.users
+  for each row execute procedure public.handle_new_user();
+
+
+  SELECT column_name, data_type 
+FROM information_schema.columns 
+WHERE table_schema = 'public' AND table_name = 'profiles';

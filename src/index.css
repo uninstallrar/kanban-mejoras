@@ -1,0 +1,42 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Tipografía base */
+html {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Animaciones usadas por el Drawer */
+@keyframes slideIn {
+  from { transform: translateX(100%); }
+  to   { transform: translateX(0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* Scrollbars discretos para columnas y tablas */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: rgba(100, 116, 139, 0.35);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover { background: rgba(100, 116, 139, 0.55); }
+
+/* Respeta la preferencia de movimiento reducido */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
+
+/* Utilidad line-clamp (por si la versión de Tailwind no la trae integrada) */
+.line-clamp-1, .line-clamp-2 {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.line-clamp-1 { -webkit-line-clamp: 1; }
+.line-clamp-2 { -webkit-line-clamp: 2; }

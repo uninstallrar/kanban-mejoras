@@ -1,0 +1,11 @@
+# URL del proyecto Supabase (Settings → API → Project URL)
+
+VITE_SUPABASE_URL=https://kfkrzyossmvddhrqfsep.supabase.co
+
+# Clave pública anónima (Settings → API → Project API keys → anon public)
+
+VITE*SUPABASE_ANON_KEY=sb_publishable_oW6Lquseswvg5tY-4zChAQ*-yiblu33
+
+# Nombre del bucket de Storage para adjuntos (créalo en Supabase → Storage)
+
+VITE_SUPABASE_BUCKET=adjuntos
