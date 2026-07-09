@@ -65,9 +65,13 @@ export function TicketForm({ onCreada, onCancelar }: Props) {
 
       onCreada();
     } catch (e) {
-      setError(
-        e instanceof Error ? e.message : "No se pudo crear la solicitud",
-      );
+      if (e && typeof e === "object" && "message" in e) {
+        setError((e as any).message);
+      } else {
+        setError(
+          e instanceof Error ? e.message : "No se pudo crear la solicitud",
+        );
+      }
     } finally {
       setBusy(false);
     }
